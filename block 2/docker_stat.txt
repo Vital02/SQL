@@ -1,0 +1,7 @@
+до:
+CONTAINER ID   NAME              CPU %     MEM USAGE / LIMIT   MEM %     NET I/O        BLOCK I/O   PIDS
+72272df48bc7   course_postgres   0.83%     20.34MiB / 1GiB     1.99%     1.5kB / 372B   0B / 0B     6
+
+после:
+CONTAINER ID   NAME              CPU %     MEM USAGE / LIMIT   MEM %     NET I/O           BLOCK I/O   PIDS
+72272df48bc7   course_postgres   0.00%     39.83MiB / 1GiB     3.89%     17.6kB / 70.1kB   0B / 0B     9
