@@ -242,16 +242,3 @@ SELECT * FROM pg_publication_tables WHERE pubname = 'dbz_pub';
 Оба топика и число сообщений:
 
 ![два топика](screenshots/2-topics-two.png)
-
----
-
-# Состав сдачи
-
-```
-Фамилия_ИО_практика_20261026.zip
-├── cdc.sql                   запросы Блока 1 и Блока 2
-├── connector.json            итоговый конфиг коннектора
-├── docker-compose.yml        PostgreSQL + Kafka + Connect + Kafka UI
-├── report.md                 этот отчёт
-└── screenshots/              15 скриншотов
-```
