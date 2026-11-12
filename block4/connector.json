@@ -1,0 +1,27 @@
+{
+  "name": "telemetry-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+    "database.hostname": "postgres",
+    "database.port": "5432",
+    "database.user": "postgres",
+    "database.password": "postgres",
+    "database.dbname": "main",
+    "topic.prefix": "nrt",
+    "plugin.name": "pgoutput",
+    "slot.name": "debezium_slot",
+    "publication.name": "dbz_pub",
+    "publication.autocreate.mode": "filtered",
+    "table.include.list": "public.fact_telemetry,public.dim_satellites",
+    "snapshot.mode": "no_data",
+    "decimal.handling.mode": "double",
+    "tombstones.on.delete": "false",
+    "topic.creation.default.partitions": "1",
+    "topic.creation.default.replication.factor": "1",
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+    "value.converter.schemas.enable": "false"
+  }
+}
