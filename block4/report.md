@@ -9,20 +9,22 @@
 
 ## Задание 1. Подготовка WAL
 
-`SHOW wal_level` возвращает `logical`. В `docker-compose.yml` это задано параметром запуска
-`-c wal_level=logical` в сервисе `postgres`, поэтому править compose и перезапускать контейнер
-не понадобилось:
+Проверка уровня WAL в контейнере:
 
-```yaml
-command: >
-  postgres
-  -c wal_level=logical
-  -c max_wal_senders=10
-  -c max_replication_slots=10
-  -c max_slot_wal_keep_size=1GB
+```
+docker exec -it postgres psql -U postgres -d main
+main=# SHOW wal_level;
+ wal_level
+-----------
+ logical
+(1 row)
 ```
 
 ![wal_level](screenshots/6-wal-level-logical.png)
+
+Уровень `logical` задан в `docker-compose.yml` параметром запуска `-c wal_level=logical`
+в сервисе `postgres`, поэтому править compose и перезапускать контейнер не понадобилось —
+сам файл приложен к сдаче отдельно.
 
 Текущий WAL-файл и его чтение через `pg_waldump`:
 
