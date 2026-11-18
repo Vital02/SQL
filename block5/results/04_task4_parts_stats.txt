@@ -1,0 +1,6 @@
+   ┌─table───────────────┬─partitions─┬─parts─┬─rows_cnt─┬─disk_size─┬─uncompressed─┬─compression_ratio─┐
+1. │ fact_space_events   │         12 │    12 │  5000004 │ 64.46 MiB │ 85.83 MiB    │              1.33 │
+2. │ fact_space_events_a │          1 │     1 │  5000004 │ 64.10 MiB │ 85.83 MiB    │              1.34 │
+3. │ fact_space_events_b │         12 │    12 │  5000004 │ 65.95 MiB │ 85.83 MiB    │               1.3 │
+4. │ fact_space_events_c │        365 │   365 │  5000004 │ 60.37 MiB │ 85.83 MiB    │              1.43 │
+   └─────────────────────┴────────────┴───────┴──────────┴───────────┴──────────────┴───────────────────┘

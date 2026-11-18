@@ -1,0 +1,103 @@
+===============================================================
+Вариант A, запрос q1
+SQL: SELECT count() FROM dwh.fact_space_events_a WHERE started_at >= toDateTime('2026-05-01 00:00:00') AND started_at < toDateTime('2026-06-01 00:00:00')
+---------------------------------------------------------------
+EXPLAIN indexes = 1:
+Expression ((Project names + Projection))
+  Aggregating
+    Expression (Before GROUP BY)
+      Filter ((WHERE + Change column names to column identifiers))
+        ReadFromMergeTree (dwh.fact_space_events_a)
+        Indexes:
+          PrimaryKey
+            Condition: true
+            Parts: 1/1
+            Granules: 611/611
+424034
+424034
+---------------------------------------------------------------
+system.query_log (query_duration_ms | read_rows | read_bytes):
+   ┌─query_id────────┬─query_duration_ms─┬─read_rows─┬─read_bytes─┐
+1. │ task4_A_q1_cold │                11 │   5000004 │   20000016 │
+2. │ task4_A_q1_warm │                31 │   5000004 │   20000016 │
+   └─────────────────┴───────────────────┴───────────┴────────────┘
+
+===============================================================
+Вариант A, запрос q2
+SQL: SELECT count() FROM dwh.fact_space_events_a WHERE started_at >= toDateTime('2026-05-15 00:00:00') AND started_at < toDateTime('2026-05-16 00:00:00')
+---------------------------------------------------------------
+EXPLAIN indexes = 1:
+Expression ((Project names + Projection))
+  Aggregating
+    Expression (Before GROUP BY)
+      Filter ((WHERE + Change column names to column identifiers))
+        ReadFromMergeTree (dwh.fact_space_events_a)
+        Indexes:
+          PrimaryKey
+            Condition: true
+            Parts: 1/1
+            Granules: 611/611
+13684
+13684
+---------------------------------------------------------------
+system.query_log (query_duration_ms | read_rows | read_bytes):
+   ┌─query_id────────┬─query_duration_ms─┬─read_rows─┬─read_bytes─┐
+1. │ task4_A_q2_cold │                11 │   5000004 │   20000016 │
+2. │ task4_A_q2_warm │                10 │   5000004 │   20000016 │
+   └─────────────────┴───────────────────┴───────────┴────────────┘
+
+===============================================================
+Вариант A, запрос q3
+SQL: SELECT count() FROM dwh.fact_space_events_a WHERE event_type = 'geomagnetic_storm' AND severity >= 4
+---------------------------------------------------------------
+EXPLAIN indexes = 1:
+Expression ((Project names + Projection))
+  Aggregating
+    Expression (Before GROUP BY)
+      Expression
+        ReadFromMergeTree (dwh.fact_space_events_a)
+        Indexes:
+          PrimaryKey
+            Condition: true
+            Parts: 1/1
+            Granules: 611/611
+499528
+499528
+---------------------------------------------------------------
+system.query_log (query_duration_ms | read_rows | read_bytes):
+   ┌─query_id────────┬─query_duration_ms─┬─read_rows─┬─read_bytes─┐
+1. │ task4_A_q3_cold │                12 │   5000004 │   10000008 │
+2. │ task4_A_q3_warm │                10 │   5000004 │   10000008 │
+   └─────────────────┴───────────────────┴───────────┴────────────┘
+
+===============================================================
+Вариант A, запрос q4
+SQL: SELECT event_type, count() AS cnt FROM dwh.fact_space_events_a GROUP BY event_type ORDER BY event_type
+---------------------------------------------------------------
+EXPLAIN indexes = 1:
+Expression (Project names)
+  Sorting (Sorting for ORDER BY)
+    Expression ((Before ORDER BY + Projection))
+      Aggregating
+        Expression ((Before GROUP BY + Change column names to column identifiers))
+          ReadFromMergeTree (dwh.fact_space_events_a)
+          Indexes:
+            PrimaryKey
+              Condition: true
+              Parts: 1/1
+              Granules: 611/611
+solar_flare	1250670
+geomagnetic_storm	1249147
+radiation_belt	1250320
+meteor_shower	1249867
+solar_flare	1250670
+geomagnetic_storm	1249147
+radiation_belt	1250320
+meteor_shower	1249867
+---------------------------------------------------------------
+system.query_log (query_duration_ms | read_rows | read_bytes):
+   ┌─query_id────────┬─query_duration_ms─┬─read_rows─┬─read_bytes─┐
+1. │ task4_A_q4_cold │                 5 │   5000004 │    5000004 │
+2. │ task4_A_q4_warm │                 6 │   5000004 │    5000004 │
+   └─────────────────┴───────────────────┴───────────┴────────────┘
+

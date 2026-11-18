@@ -1,0 +1,152 @@
+===============================================================
+Вариант D, запрос q1
+SQL: SELECT count() FROM dwh.fact_space_events_d WHERE started_at >= toDateTime('2026-05-01 00:00:00') AND started_at < toDateTime('2026-06-01 00:00:00')
+---------------------------------------------------------------
+EXPLAIN indexes = 1:
+Expression ((Project names + Projection))
+  AggregatingProjection
+    Expression (Before GROUP BY)
+      Filter ((WHERE + Change column names to column identifiers))
+        ReadFromMergeTree (dwh.fact_space_events_d)
+        Indexes:
+          MinMax
+            Keys: 
+              started_at
+            Condition: and((started_at in (-Inf, 1780271999]), (started_at in [1777593600, +Inf)))
+            Parts: 1/12
+            Granules: 52/616
+          Partition
+            Keys: 
+              toYYYYMM(started_at)
+            Condition: and((toYYYYMM(started_at) in (-Inf, 202606]), (toYYYYMM(started_at) in [202605, +Inf)))
+            Parts: 1/1
+            Granules: 52/52
+          PrimaryKey
+            Keys: 
+              started_at
+            Condition: and((started_at in (-Inf, 1780271999]), (started_at in [1777593600, +Inf)))
+            Parts: 1/1
+            Granules: 52/52
+    ReadFromPreparedSource (Optimized trivial count)
+424034
+424034
+---------------------------------------------------------------
+system.query_log (query_duration_ms | read_rows | read_bytes):
+   ┌─query_id────────┬─query_duration_ms─┬─read_rows─┬─read_bytes─┐
+1. │ task4_D_q1_cold │                 3 │    155649 │     622608 │
+2. │ task4_D_q1_warm │                 3 │    155649 │     622608 │
+   └─────────────────┴───────────────────┴───────────┴────────────┘
+
+===============================================================
+Вариант D, запрос q2
+SQL: SELECT count() FROM dwh.fact_space_events_d WHERE started_at >= toDateTime('2026-05-15 00:00:00') AND started_at < toDateTime('2026-05-16 00:00:00')
+---------------------------------------------------------------
+EXPLAIN indexes = 1:
+Expression ((Project names + Projection))
+  Aggregating
+    Expression (Before GROUP BY)
+      Filter ((WHERE + Change column names to column identifiers))
+        ReadFromMergeTree (dwh.fact_space_events_d)
+        Indexes:
+          MinMax
+            Keys: 
+              started_at
+            Condition: and((started_at in (-Inf, 1778889599]), (started_at in [1778803200, +Inf)))
+            Parts: 1/12
+            Granules: 52/616
+          Partition
+            Keys: 
+              toYYYYMM(started_at)
+            Condition: and((toYYYYMM(started_at) in (-Inf, 202605]), (toYYYYMM(started_at) in [202605, +Inf)))
+            Parts: 1/1
+            Granules: 52/52
+          PrimaryKey
+            Keys: 
+              started_at
+            Condition: and((started_at in (-Inf, 1778889599]), (started_at in [1778803200, +Inf)))
+            Parts: 1/1
+            Granules: 40/52
+13684
+13684
+---------------------------------------------------------------
+system.query_log (query_duration_ms | read_rows | read_bytes):
+   ┌─query_id────────┬─query_duration_ms─┬─read_rows─┬─read_bytes─┐
+1. │ task4_D_q2_cold │                 4 │    327680 │    1310720 │
+2. │ task4_D_q2_warm │                 4 │    327680 │    1310720 │
+   └─────────────────┴───────────────────┴───────────┴────────────┘
+
+===============================================================
+Вариант D, запрос q3
+SQL: SELECT count() FROM dwh.fact_space_events_d WHERE event_type = 'geomagnetic_storm' AND severity >= 4
+---------------------------------------------------------------
+EXPLAIN indexes = 1:
+Expression ((Project names + Projection))
+  AggregatingProjection
+    Expression (Before GROUP BY)
+      Expression
+        ReadFromMergeTree (dwh.fact_space_events_d)
+        Indexes:
+          MinMax
+            Condition: true
+            Parts: 12/12
+            Granules: 616/616
+          Partition
+            Condition: true
+            Parts: 12/12
+            Granules: 616/616
+          PrimaryKey
+            Keys: 
+              event_type
+              severity
+            Condition: and((severity in [4, +Inf)), (event_type in [2, 2]))
+            Parts: 12/12
+            Granules: 73/616
+    ReadFromPreparedSource (Optimized trivial count)
+499528
+499528
+---------------------------------------------------------------
+system.query_log (query_duration_ms | read_rows | read_bytes):
+   ┌─query_id────────┬─query_duration_ms─┬─read_rows─┬─read_bytes─┐
+1. │ task4_D_q3_cold │                 5 │    196609 │     393232 │
+2. │ task4_D_q3_warm │                 6 │    196609 │     393232 │
+   └─────────────────┴───────────────────┴───────────┴────────────┘
+
+===============================================================
+Вариант D, запрос q4
+SQL: SELECT event_type, count() AS cnt FROM dwh.fact_space_events_d GROUP BY event_type ORDER BY event_type
+---------------------------------------------------------------
+EXPLAIN indexes = 1:
+Expression (Project names)
+  Sorting (Sorting for ORDER BY)
+    Expression ((Before ORDER BY + Projection))
+      Aggregating
+        Expression ((Before GROUP BY + Change column names to column identifiers))
+          ReadFromMergeTree (dwh.fact_space_events_d)
+          Indexes:
+            MinMax
+              Condition: true
+              Parts: 12/12
+              Granules: 616/616
+            Partition
+              Condition: true
+              Parts: 12/12
+              Granules: 616/616
+            PrimaryKey
+              Condition: true
+              Parts: 12/12
+              Granules: 616/616
+solar_flare	1250670
+geomagnetic_storm	1249147
+radiation_belt	1250320
+meteor_shower	1249867
+solar_flare	1250670
+geomagnetic_storm	1249147
+radiation_belt	1250320
+meteor_shower	1249867
+---------------------------------------------------------------
+system.query_log (query_duration_ms | read_rows | read_bytes):
+   ┌─query_id────────┬─query_duration_ms─┬─read_rows─┬─read_bytes─┐
+1. │ task4_D_q4_cold │                 7 │   5000004 │    5000004 │
+2. │ task4_D_q4_warm │                 8 │   5000004 │    5000004 │
+   └─────────────────┴───────────────────┴───────────┴────────────┘
+

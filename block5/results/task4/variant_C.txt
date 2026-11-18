@@ -1,0 +1,150 @@
+===============================================================
+Вариант C, запрос q1
+SQL: SELECT count() FROM dwh.fact_space_events_c WHERE started_at >= toDateTime('2026-05-01 00:00:00') AND started_at < toDateTime('2026-06-01 00:00:00')
+---------------------------------------------------------------
+EXPLAIN indexes = 1:
+Expression ((Project names + Projection))
+  Aggregating
+    Expression (Before GROUP BY)
+      Filter ((WHERE + Change column names to column identifiers))
+        ReadFromMergeTree (dwh.fact_space_events_c)
+        Indexes:
+          MinMax
+            Keys: 
+              started_at
+            Condition: and((started_at in (-Inf, 1780271999]), (started_at in [1777593600, +Inf)))
+            Parts: 31/365
+            Granules: 62/730
+          Partition
+            Keys: 
+              toDate(started_at)
+            Condition: and((toDate(started_at) in (-Inf, 20605]), (toDate(started_at) in [20574, +Inf)))
+            Parts: 31/31
+            Granules: 62/62
+          PrimaryKey
+            Keys: 
+              started_at
+            Condition: and((started_at in (-Inf, 1780271999]), (started_at in [1777593600, +Inf)))
+            Parts: 31/31
+            Granules: 62/62
+424034
+424034
+---------------------------------------------------------------
+system.query_log (query_duration_ms | read_rows | read_bytes):
+   ┌─query_id────────┬─query_duration_ms─┬─read_rows─┬─read_bytes─┐
+1. │ task4_C_q1_cold │                 7 │    424034 │    1696136 │
+2. │ task4_C_q1_warm │                 6 │    424034 │    1696136 │
+   └─────────────────┴───────────────────┴───────────┴────────────┘
+
+===============================================================
+Вариант C, запрос q2
+SQL: SELECT count() FROM dwh.fact_space_events_c WHERE started_at >= toDateTime('2026-05-15 00:00:00') AND started_at < toDateTime('2026-05-16 00:00:00')
+---------------------------------------------------------------
+EXPLAIN indexes = 1:
+Expression ((Project names + Projection))
+  Aggregating
+    Expression (Before GROUP BY)
+      Filter ((WHERE + Change column names to column identifiers))
+        ReadFromMergeTree (dwh.fact_space_events_c)
+        Indexes:
+          MinMax
+            Keys: 
+              started_at
+            Condition: and((started_at in (-Inf, 1778889599]), (started_at in [1778803200, +Inf)))
+            Parts: 1/365
+            Granules: 2/730
+          Partition
+            Keys: 
+              toDate(started_at)
+            Condition: and((toDate(started_at) in (-Inf, 20589]), (toDate(started_at) in [20588, +Inf)))
+            Parts: 1/1
+            Granules: 2/2
+          PrimaryKey
+            Keys: 
+              started_at
+            Condition: and((started_at in (-Inf, 1778889599]), (started_at in [1778803200, +Inf)))
+            Parts: 1/1
+            Granules: 2/2
+13684
+13684
+---------------------------------------------------------------
+system.query_log (query_duration_ms | read_rows | read_bytes):
+   ┌─query_id────────┬─query_duration_ms─┬─read_rows─┬─read_bytes─┐
+1. │ task4_C_q2_cold │                 3 │     13684 │      54736 │
+2. │ task4_C_q2_warm │                 3 │     13684 │      54736 │
+   └─────────────────┴───────────────────┴───────────┴────────────┘
+
+===============================================================
+Вариант C, запрос q3
+SQL: SELECT count() FROM dwh.fact_space_events_c WHERE event_type = 'geomagnetic_storm' AND severity >= 4
+---------------------------------------------------------------
+EXPLAIN indexes = 1:
+Expression ((Project names + Projection))
+  Aggregating
+    Expression (Before GROUP BY)
+      Expression
+        ReadFromMergeTree (dwh.fact_space_events_c)
+        Indexes:
+          MinMax
+            Condition: true
+            Parts: 365/365
+            Granules: 730/730
+          Partition
+            Condition: true
+            Parts: 365/365
+            Granules: 730/730
+          PrimaryKey
+            Keys: 
+              event_type
+              severity
+            Condition: and((severity in [4, +Inf)), (event_type in [2, 2]))
+            Parts: 365/365
+            Granules: 365/730
+499528
+499528
+---------------------------------------------------------------
+system.query_log (query_duration_ms | read_rows | read_bytes):
+   ┌─query_id────────┬─query_duration_ms─┬─read_rows─┬─read_bytes─┐
+1. │ task4_C_q3_cold │                50 │   2990080 │    5980160 │
+2. │ task4_C_q3_warm │                55 │   2990080 │    5980160 │
+   └─────────────────┴───────────────────┴───────────┴────────────┘
+
+===============================================================
+Вариант C, запрос q4
+SQL: SELECT event_type, count() AS cnt FROM dwh.fact_space_events_c GROUP BY event_type ORDER BY event_type
+---------------------------------------------------------------
+EXPLAIN indexes = 1:
+Expression (Project names)
+  Sorting (Sorting for ORDER BY)
+    Expression ((Before ORDER BY + Projection))
+      Aggregating
+        Expression ((Before GROUP BY + Change column names to column identifiers))
+          ReadFromMergeTree (dwh.fact_space_events_c)
+          Indexes:
+            MinMax
+              Condition: true
+              Parts: 365/365
+              Granules: 730/730
+            Partition
+              Condition: true
+              Parts: 365/365
+              Granules: 730/730
+            PrimaryKey
+              Condition: true
+              Parts: 365/365
+              Granules: 730/730
+solar_flare	1250670
+geomagnetic_storm	1249147
+radiation_belt	1250320
+meteor_shower	1249867
+solar_flare	1250670
+geomagnetic_storm	1249147
+radiation_belt	1250320
+meteor_shower	1249867
+---------------------------------------------------------------
+system.query_log (query_duration_ms | read_rows | read_bytes):
+   ┌─query_id────────┬─query_duration_ms─┬─read_rows─┬─read_bytes─┐
+1. │ task4_C_q4_cold │                24 │   5000004 │    5000004 │
+2. │ task4_C_q4_warm │                21 │   5000004 │    5000004 │
+   └─────────────────┴───────────────────┴───────────┴────────────┘
+

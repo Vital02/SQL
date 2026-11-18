@@ -1,0 +1,10 @@
+-- SELECT version()
+24.8.14.39
+
+-- SHOW DATABASES
+   ┌─name───────────────┐
+1. │ INFORMATION_SCHEMA │
+2. │ default            │
+3. │ information_schema │
+4. │ system             │
+   └────────────────────┘

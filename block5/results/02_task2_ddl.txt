@@ -1,0 +1,15 @@
+-- SHOW CREATE TABLE dwh.fact_space_events
+CREATE TABLE dwh.fact_space_events
+(
+    `space_event_id` UInt64 COMMENT 'Уникальный идентификатор события',
+    `event_type` Enum8('solar_flare' = 1, 'geomagnetic_storm' = 2, 'radiation_belt' = 3, 'meteor_shower' = 4) COMMENT 'Тип события',
+    `severity` UInt8 COMMENT 'Сила события, шкала 1-5',
+    `started_at` DateTime COMMENT 'Начало события',
+    `ended_at` DateTime COMMENT 'Окончание события',
+    INDEX idx_started_at started_at TYPE minmax GRANULARITY 1
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMM(started_at)
+ORDER BY space_event_id
+TTL started_at + toIntervalYear(2)
+SETTINGS index_granularity = 8192

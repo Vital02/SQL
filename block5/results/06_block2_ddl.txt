@@ -1,0 +1,72 @@
+-- SHOW CREATE stage.kafka_telemetry
+CREATE TABLE stage.kafka_telemetry
+(
+    `event_id` UInt64,
+    `satellite_id` UInt32,
+    `status_id` UInt16,
+    `distance` Float64,
+    `signal_strength` Float64,
+    `battery_level` UInt8,
+    `event_time` DateTime,
+    `updated_at` Nullable(DateTime),
+    `_state` Int8 COMMENT '1 - состояние, -1 - отмена состояния'
+)
+ENGINE = Kafka
+SETTINGS kafka_broker_list = 'kafka:29092', kafka_topic_list = 'fact_telemetry', kafka_group_name = 'ch_stage_consumers', kafka_format = 'JSONEachRow', kafka_num_consumers = 1, kafka_flush_interval_ms = 1000
+
+-- SHOW CREATE stage.fact_telemetry
+CREATE TABLE stage.fact_telemetry
+(
+    `event_id` UInt64 COMMENT 'ID события телеметрии (источник)',
+    `satellite_id` UInt32 COMMENT 'Спутник',
+    `status_id` UInt16 COMMENT 'Статус',
+    `distance` Float64 COMMENT 'Дистанция',
+    `signal_strength` Float64 COMMENT 'Уровень сигнала, dBm',
+    `battery_level` UInt8 COMMENT 'Заряд батареи, %',
+    `event_time` DateTime COMMENT 'Время события',
+    `updated_at` Nullable(DateTime) COMMENT 'Время изменения в источнике',
+    `_topic` LowCardinality(String) COMMENT 'Топик Kafka',
+    `_partition` Int32 COMMENT 'Партиция топика',
+    `_offset` Int64 COMMENT 'Смещение в партиции',
+    `_timestamp` DateTime COMMENT 'Timestamp сообщения Kafka',
+    `_dateload` DateTime DEFAULT now() COMMENT 'Время загрузки строки',
+    `_state` Int8 DEFAULT 1 COMMENT '1 - состояние, -1 - отмена состояния'
+)
+ENGINE = MergeTree
+ORDER BY (event_id, _offset)
+SETTINGS index_granularity = 8192
+
+-- SHOW CREATE stage.mv_kafka_telemetry
+CREATE MATERIALIZED VIEW stage.mv_kafka_telemetry TO stage.fact_telemetry
+(
+    `event_id` UInt64,
+    `satellite_id` UInt32,
+    `status_id` UInt16,
+    `distance` Float64,
+    `signal_strength` Float64,
+    `battery_level` UInt8,
+    `event_time` DateTime,
+    `updated_at` Nullable(DateTime),
+    `_topic` LowCardinality(String),
+    `_partition` UInt64,
+    `_offset` UInt64,
+    `_timestamp` Nullable(DateTime),
+    `_dateload` DateTime,
+    `_state` Int8
+)
+AS SELECT
+    event_id,
+    satellite_id,
+    status_id,
+    distance,
+    signal_strength,
+    battery_level,
+    event_time,
+    updated_at,
+    _topic,
+    _partition,
+    _offset,
+    _timestamp,
+    now() AS _dateload,
+    _state
+FROM stage.kafka_telemetry

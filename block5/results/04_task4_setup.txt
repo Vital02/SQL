@@ -1,0 +1,21 @@
+Received exception from server (version 24.8.14):
+Code: 57. DB::Exception: Received from localhost:9000. DB::Exception: Table dwh.fact_space_events_a already exists. (TABLE_ALREADY_EXISTS)
+(query: -- ============================================================
+-- Задача 4. Тестирование ключа партиционирования и ключа сортировки
+-- Три варианта таблиц с одинаковой структурой и одинаковыми данными
+-- ============================================================
+
+-- ---------- Вариант A: без партиционирования, ORDER BY space_event_id ----------
+CREATE TABLE dwh.fact_space_events_a
+(
+    space_event_id UInt64,
+    event_type     Enum8('solar_flare' = 1, 'geomagnetic_storm' = 2,
+                         'radiation_belt' = 3, 'meteor_shower' = 4),
+    severity       UInt8,
+    started_at     DateTime,
+    ended_at       DateTime
+)
+ENGINE = MergeTree
+ORDER BY (space_event_id)
+TTL started_at + INTERVAL 2 YEAR DELETE
+SETTINGS index_granularity = 8192;)

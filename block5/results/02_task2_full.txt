@@ -1,0 +1,19 @@
+CREATE TABLE dwh.fact_space_events\n(\n    `space_event_id` UInt64 COMMENT \'Уникальный идентификатор события\',\n    `event_type` Enum8(\'solar_flare\' = 1, \'geomagnetic_storm\' = 2, \'radiation_belt\' = 3, \'meteor_shower\' = 4) COMMENT \'Тип события\',\n    `severity` UInt8 COMMENT \'Сила события, шкала 1-5\',\n    `started_at` DateTime COMMENT \'Начало события\',\n    `ended_at` DateTime COMMENT \'Окончание события\',\n    INDEX idx_started_at started_at TYPE minmax GRANULARITY 1\n)\nENGINE = MergeTree\nPARTITION BY toYYYYMM(started_at)\nORDER BY space_event_id\nTTL started_at + toIntervalYear(2)\nSETTINGS index_granularity = 8192
+1	solar_flare	4	2026-03-14 11:20:00	2026-03-14 14:05:00
+2	geomagnetic_storm	5	2026-05-02 23:40:00	2026-05-03 10:15:00
+3	meteor_shower	2	2026-08-12 02:00:00	2026-08-12 06:30:00
+4	radiation_belt	3	2026-10-27 17:55:00	2026-10-27 21:10:00
+Received exception from server (version 24.8.14):
+Code: 47. DB::Exception: Received from localhost:9000. DB::Exception: Unknown expression or function identifier 'space_event_id' in scope SELECT partition, count() AS parts_cnt, sum(rows) AS rows_cnt, min(space_event_id) AS min_id, max(space_event_id) AS max_id, formatReadableSize(sum(bytes_on_disk)) AS size_on_disk FROM system.parts WHERE (database = 'dwh') AND (`table` = 'fact_space_events') AND active GROUP BY partition ORDER BY partition ASC. (UNKNOWN_IDENTIFIER)
+(query: -- system.parts: каждый INSERT создал свой парт
+SELECT
+    partition,
+    count()               AS parts_cnt,
+    sum(rows)             AS rows_cnt,
+    min(space_event_id)   AS min_id,
+    max(space_event_id)   AS max_id,
+    formatReadableSize(sum(bytes_on_disk)) AS size_on_disk
+FROM system.parts
+WHERE database = 'dwh' AND table = 'fact_space_events' AND active
+GROUP BY partition
+ORDER BY partition;)
